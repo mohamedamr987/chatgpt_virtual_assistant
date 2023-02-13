@@ -34,6 +34,7 @@ class HomePageController extends Cubit<HomeState>
     }
     else{
       await textToSpeechHelper.flutterTts.stop();
+      await Future.delayed(const Duration(milliseconds: 500));
       speechToTextHelper.startListening();
     }
   }

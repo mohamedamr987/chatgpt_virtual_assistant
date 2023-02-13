@@ -10,7 +10,6 @@ class TextToSpeechHelper {
   FlutterTts flutterTts = FlutterTts();
   TtsState ttsState = TtsState.stopped;
   HomePageController? blocController;
-
   get isPlaying => ttsState == TtsState.playing;
   get isStopped => ttsState == TtsState.stopped;
   get isPaused => ttsState == TtsState.paused;
@@ -72,6 +71,14 @@ class TextToSpeechHelper {
       ttsState = TtsState.stopped;
       blocController?.update();
     });
+    flutterTts.setIosAudioCategory(IosTextToSpeechAudioCategory.playAndRecord,
+        [
+          IosTextToSpeechAudioCategoryOptions.defaultToSpeaker,
+          IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
+          IosTextToSpeechAudioCategoryOptions.mixWithOthers
+        ],
+        IosTextToSpeechAudioMode.spokenAudio
+    );
   }
 
   Future _setAwaitOptions() async {
@@ -91,6 +98,9 @@ class TextToSpeechHelper {
       print(voice);
     }
   }
-  void speak(String text) async => await flutterTts.speak(text);
+  void speak(String text) async {
+    await flutterTts.setVolume(1.0);
+    await flutterTts.speak(text);
+  }
 
 }

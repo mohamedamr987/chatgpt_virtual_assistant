@@ -33,8 +33,11 @@ class _SplashScreenScaffoldState extends State<SplashScreenScaffold> {
       backgroundColor: Colors.black,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: const [
-          GeneralText(text: "ChatGPT", size: 30, color: Colors.white,),
+          SizedBox(width: double.infinity,),
+          GeneralText(text: "Jojo", size: 30, color: Colors.white,),
+          GeneralText(text: "Powered by openAI", size: 12, color: Colors.white,),
         ],
       ),
     );
