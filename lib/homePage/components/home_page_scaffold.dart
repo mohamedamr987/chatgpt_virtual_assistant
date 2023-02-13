@@ -1,98 +1,59 @@
+import 'package:chatgpt_virtual_assistant/homePage/controller.dart';
+import 'package:chatgpt_virtual_assistant/homePage/state.dart';
+import 'package:chatgpt_virtual_assistant/widgets/bloc_temp_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:speech_to_text/speech_recognition_result.dart';
-import 'package:speech_to_text/speech_to_text.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-class HomePageScaffold extends StatefulWidget {
+import '../../widgets/general_text.dart';
+
+class HomePageScaffold extends StatelessWidget {
   const HomePageScaffold({Key? key}) : super(key: key);
 
   @override
-  _HomePageScaffoldState createState() => _HomePageScaffoldState();
-}
-
-class _HomePageScaffoldState extends State<HomePageScaffold> {
-  final SpeechToText _speechToText = SpeechToText();
-  bool _speechEnabled = false;
-  String _lastWords = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _initSpeech();
-  }
-
-  /// This has to happen only once per app
-  void _initSpeech() async {
-    _speechEnabled = await _speechToText.initialize();
-    setState(() {});
-  }
-
-  /// Each time to start a speech recognition session
-  void _startListening() async {
-    await _speechToText.listen(onResult: _onSpeechResult);
-    setState(() {});
-  }
-
-  /// Manually stop the active speech recognition session
-  /// Note that there are also timeouts that each platform enforces
-  /// and the SpeechToText plugin supports setting timeouts on the
-  /// listen method.
-  void _stopListening() async {
-    await _speechToText.stop();
-    setState(() {});
-  }
-
-  /// This is the callback that the SpeechToText plugin calls when
-  /// the platform returns recognized words.
-  void _onSpeechResult(SpeechRecognitionResult result) {
-    setState(() {
-      _lastWords = result.recognizedWords;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    HomePageController blocController = HomePageController.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Speech Demo'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              padding: const EdgeInsets.all(16),
-              child: const Text(
-                'Recognized words:',
-                style: TextStyle(fontSize: 20.0),
-              ),
-            ),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  // If listening is active show the recognized words
-                  _speechToText.isListening
-                      ? _lastWords
-                  // If listening isn't active but could be tell the user
-                  // how to start it, otherwise indicate that speech
-                  // recognition is not yet ready or not supported on
-                  // the target device
-                      : _speechEnabled
-                      ? 'Tap the microphone to start listening...'
-                      : 'Speech not available',
+        backgroundColor: Colors.black,
+        body: BlocBuilder(
+          bloc: blocController,
+          buildWhen: (previous, current) => current is! HomeUpdate,
+          builder: (context, state){
+            print(state);
+            return SafeArea(
+              child: BlocTempWidget(
+                successWidget: Expanded(
+                    child: Center(
+                      child: (){
+                        if(state is HomeLoadingResponse){
+                          return LoadingAnimationWidget.beat(
+                            color: Colors.white,
+                            size: 100,
+                          );
+                        }
+                        return GeneralText(
+                          text: blocController.openAiResponse ?? 'Tap the microphone to start listening...',
+                        );
+                      }(),
+                    )
                 ),
+                errorState: state is HomeError,
+                loadingState: state is HomeLoading,
               ),
-            ),
-          ],
+            );
+          },
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed:
-        // If not yet listening for speech start, otherwise stop
-        _speechToText.isNotListening ? _startListening : _stopListening,
-        tooltip: 'Listen',
-        child: Icon(_speechToText.isNotListening ? Icons.mic_off : Icons.mic),
-      ),
+        floatingActionButton: BlocBuilder(
+          bloc: blocController,
+          buildWhen: (previous, current) => true,
+          builder: (context, state) {
+            return FloatingActionButton(
+              onPressed: blocController.micOnPressed,
+              tooltip: 'Listen',
+              child: Icon(blocController.speechToTextHelper.speechToText.isListening ? Icons.mic_off : Icons.mic),
+            );
+          },
+        )
     );
   }
 }

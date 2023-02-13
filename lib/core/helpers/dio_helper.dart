@@ -8,9 +8,11 @@ import 'package:dio/dio.dart';
 import 'package:chatgpt_virtual_assistant/core/errors/exceptions.dart';
 import 'package:chatgpt_virtual_assistant/core/errors/respone_error_helper.dart';
 
+import '../../api_key.dart';
+
 class DioHelper
 {
-  static String baseUrl = "https://app.chatgpt_virtual_assistant.tv";
+  static String baseUrl = "https://api.openai.com/v1";
   static String api = baseUrl;
   
 
@@ -19,6 +21,7 @@ class DioHelper
     BaseOptions(
       headers: {
         'content-Type': 'application/json',
+        "Authorization" : "Bearer $apiKey",
         "Access-Control-Allow-Origin": "*",
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, PATCH, DELETE',
         // If needed
@@ -66,7 +69,9 @@ class DioHelper
           Options(
             contentType: 'application/json',
             method: 'POST',
-            validateStatus: (state) => state! < 500,
+            // validateStatus: (state) => state! < 500,
+            followRedirects: false,
+            validateStatus: (status) => true,
           ),
     );
     return handleResponse(response);
@@ -142,10 +147,9 @@ class DioHelper
   dynamic handleResponse(Response response){
     if(response.statusCode.toString()[0] != "2"){
       log(response.data.toString());
-      String message = responseErrorHelper.getErrorsMessageFromJson(response.data);
+      String message = response.data["error"]["message"];
       throw ServerException(exceptionMessage: message,);
     }
-    log(response.data.toString());
     try{
       return json.decode(response.data);
     }

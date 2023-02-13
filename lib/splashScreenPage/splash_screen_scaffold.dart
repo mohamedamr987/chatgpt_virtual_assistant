@@ -1,7 +1,9 @@
+import 'package:chatgpt_virtual_assistant/homePage/home_page_view.dart';
 import 'package:chatgpt_virtual_assistant/widgets/general_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../core/helpers/navigation_helper.dart';
 import '../size_config.dart';
 
 class SplashScreenScaffold extends StatefulWidget {
@@ -20,8 +22,8 @@ class _SplashScreenScaffoldState extends State<SplashScreenScaffold> {
 
   void delayingFunc() async {
 
-    await Future.delayed(const Duration(seconds: 5,),);
-    // NavigationHelper.pushUntil(context, const PairingPageView(),);
+    await Future.delayed(const Duration(seconds: 2,),);
+    NavigationHelper.pushUntil(context, const HomePageView(),);
   }
   @override
   Widget build(BuildContext context) {

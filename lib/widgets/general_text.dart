@@ -18,7 +18,7 @@ class GeneralText extends StatelessWidget {
       required this.text,
       this.size = 14,
       this.margin = 0,
-      this.color = Colors.black,
+      this.color = Colors.white,
       this.isBold = false,
       this.textDecoration = TextDecoration.none,
       this.textAlign = TextAlign.start,
